@@ -61,6 +61,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
     const token = req.session.authorization['accessToken'];
     const isbn = req.params.isbn;
+    const review = req.query.review;
 
     // Verify JWT token
     jwt.verify(token, "access", (err, user) => {
@@ -78,15 +79,25 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
             });
         }
 
-        // Add review
-        books[isbn].reviews[user.username] = req.body.review;
+        // Check if review was provided
+        if (!review) {
+            return res.status(400).json({
+                message: "Review is required"
+            });
+        }
+
+        const username = user.username;
+
+        // Add or modify review
+        books[isbn].reviews[username] = review;
 
         return res.status(200).json({
-            message: "Review added successfully",
+            message: "Review added/modified successfully",
             review: books[isbn].reviews
         });
     });
 });
+
 regd_users.delete("/auth/review/:isbn", (req, res) => {
 
     const token = req.session.authorization['accessToken'];
