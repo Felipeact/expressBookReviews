@@ -25,8 +25,8 @@ public_users.post("/register", (req, res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/', function (req, res) {
-    return res.status(300).json({ books });
+public_users.get('/', async function (req, res) {
+    return res.status(300).json({ books: books });
 });
 
 // Get book details based on ISBN
@@ -57,10 +57,17 @@ public_users.get('/author/:author', function (req, res) {
 
 // Get all books based on title
 public_users.get('/title/:title', function (req, res) {
-    const title = req.params.isbn;
+    const title = req.params.title;
 
-    let filtered_book_title = books[title]
-    return res.status(300).json(filtered_book_title);
+    const results = [];
+
+    for (const id in books) {
+        if (books[id].title == title) {
+            results.push(books[id]);
+        }
+    }
+
+    return res.status(300).json(results);
 });
 
 //  Get book review
