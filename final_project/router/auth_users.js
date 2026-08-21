@@ -57,11 +57,36 @@ regd_users.post("/login", (req, res) => {
 });
 
 // Add a book review
+// Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
 
-    
+    const token = req.session.authorization['accessToken'];
+    const isbn = req.params.isbn;
 
-    return res.status(300).json({ message: "Yet to be implemented" });
+    // Verify JWT token
+    jwt.verify(token, "access", (err, user) => {
+
+        if (err) {
+            return res.status(403).json({
+                message: "User not authenticated"
+            });
+        }
+
+        // Check if book exists
+        if (!books[isbn]) {
+            return res.status(404).json({
+                message: "Book not found"
+            });
+        }
+
+        // Add review
+        books[isbn].reviews[user.username] = req.body.review;
+
+        return res.status(200).json({
+            message: "Review added successfully",
+            review: books[isbn].reviews
+        });
+    });
 });
 
 module.exports.authenticated = regd_users;
